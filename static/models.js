@@ -24,18 +24,37 @@ class Cupcake {
 
   static async getAllCupcakes() {
     const res = await axios.get("/api/cupcakes");
-    return res.data.cupcakes;
+    let cupcakes = [];
+    for (let c of res.data.cupcakes) {
+      const { id, flavor, size, rating, image } = c;
+      cupcakes.push(new Cupcake(id, flavor, size, rating, image));
+    }
+    return cupcakes;
   }
 
   static async postCupcake(data) {
-    await axios.post("/api/cupcakes", data);
+    const {
+      data: { cupcake },
+    } = await axios.post("/api/cupcakes", data);
+    return new Cupcake(
+      cupcake.id,
+      cupcake.flavor,
+      cupcake.size,
+      cupcake.rating,
+      cupcake.image
+    );
   }
 
   static async searchCupcake(term) {
     const res = await axios.get("/api/cupcakes/search", {
       params: { search: term },
     });
-    return res.data.cupcakes;
+    let cupcakes = [];
+    for (let c of res.data.cupcakes) {
+      const { id, flavor, size, rating, image } = c;
+      cupcakes.push(new Cupcake(id, flavor, size, rating, image));
+    }
+    return cupcakes;
   }
 
   static async deleteCupcake(id) {

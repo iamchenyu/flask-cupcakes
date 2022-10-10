@@ -1,5 +1,6 @@
 """Flask app for Cupcakes"""
 from crypt import methods
+from curses import flash
 from sqlite3 import connect
 from flask import Flask, jsonify, request, render_template
 from flask_debugtoolbar import DebugToolbarExtension

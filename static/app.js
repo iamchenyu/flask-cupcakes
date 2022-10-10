@@ -1,14 +1,21 @@
-// show all cupcakes after the page loads
-const getAllCupcakesHandler = async () => {
+// hide all elements
+const hideAll = () => {
   $("#search-list").hide();
   $("h3").hide();
   $("#add-cupcake").hide();
   $("#homepage").hide();
+  $("#new-cupcake-btn").hide();
+  $("#cupcakes-list").hide();
+};
+
+// show all cupcakes after the page loads
+const getAllCupcakesHandler = async () => {
+  hideAll();
+  $("#cupcakes-list").show();
+  $("#new-cupcake-btn").show();
   cupcakes = await Cupcake.getAllCupcakes();
   for (let c of cupcakes) {
-    const { id, flavor, size, rating, image } = c;
-    const cupcake = new Cupcake(id, flavor, size, rating, image);
-    cupcake.createMarkUp("#cupcakes-list");
+    c.createMarkUp("#cupcakes-list");
   }
 };
 
@@ -23,8 +30,9 @@ const showNewCupcakeForm = () => {
 
 $("#new-cupcake-btn").on("click", showNewCupcakeForm);
 
-// add cupcake when click the submit button
-const addCupcakeHandler = async () => {
+// add cupcake to db and update the page when submit the form
+const addCupcakeHandler = async (e) => {
+  e.preventDefault();
   const flavor = $("#flavor").val();
   const size = $("#size").val();
   const rating = $("#rating").val();
@@ -35,10 +43,12 @@ const addCupcakeHandler = async () => {
     rating,
     image,
   };
-  Cupcake.postCupcake(data);
+  const cupcake = await Cupcake.postCupcake(data);
+  cupcake.createMarkUp("#cupcakes-list");
+  $("#add-cupcake").trigger("reset");
 };
 
-$("#submit").on("click", addCupcakeHandler);
+$("#add-cupcake").on("submit", addCupcakeHandler);
 
 // delete cupcake when clicking "X"
 const deleteCupcakeHandler = async (e) => {
@@ -47,7 +57,7 @@ const deleteCupcakeHandler = async (e) => {
   $(e.target).parent().remove();
 };
 // because when the JS script runs, delete buttons havn't been created - we need to delegate the delete event to the parent <ul>
-$("#cupcakes-list").on("click", deleteCupcakeHandler);
+$("#cupcakes-list").on("click", ".delete-btn", deleteCupcakeHandler);
 
 // search cupcakes
 const searchCupcake = async (e) => {
@@ -58,18 +68,13 @@ const searchCupcake = async (e) => {
 };
 
 const showSearchResult = (cupcakes) => {
-  $("#new-cupcake-btn").hide();
-  $("#cupcakes-list").hide();
-  $("h3").hide();
-  $("#add-cupcake").hide();
-  $("#search-list").empty();
+  hideAll();
   $("#search-list").show();
   $("#homepage").show();
+  $("#search-list").empty();
   if (cupcakes.length >= 1) {
     for (let c of cupcakes) {
-      const { id, flavor, size, rating, image } = c;
-      const cupcake = new Cupcake(id, flavor, size, rating, image);
-      cupcake.createMarkUp("#search-list");
+      c.createMarkUp("#search-list");
     }
   } else {
     const result = $("<div class='alert alert-secondary'></div").text(
